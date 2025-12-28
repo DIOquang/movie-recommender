@@ -81,8 +81,15 @@ async function initApi() {
     const candidates = [];
     if (window.API_BASE) candidates.push(window.API_BASE);
 
+    // Same-origin API (Render or any single-service deploy)
+    if (window.location.protocol.startsWith('http')) {
+        candidates.push(`${window.location.origin}/api`);
+    }
+
     const isLocal = (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
     if (isLocal) candidates.push('http://localhost:5001/api');
+
+    // Legacy fallback (older Render service name)
     candidates.push('https://movie-recommender-api.onrender.com/api');
 
     for (const base of candidates) {
