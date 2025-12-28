@@ -1,3 +1,7 @@
+link deploy: https://movie-recommender-h4e7.onrender.com/
+link github: https://github.com/DIOquang/movie-recommender.git
+
+
 # 🎬 Movie Recommendation System - Modern Web App
 
 Beautiful movie recommendation system with stunning UI and slideshow effects.

@@ -69,8 +69,12 @@ def get_recommendations(title, n=5):
         return None
     
     idx = indices[title]
-    sim_scores = list(enumerate(cosine_sim[idx]))
-    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+    # Ensure idx is scalar, not array
+    if hasattr(idx, '__len__'):
+        idx = idx.iloc[0] if hasattr(idx, 'iloc') else idx[0]
+    
+    sim_scores = list(enumerate(cosine_sim[int(idx)]))
+    sim_scores = sorted(sim_scores, key=lambda x: float(x[1]), reverse=True)
     sim_scores = sim_scores[1:n+1]
     
     recommendations = []
@@ -179,8 +183,10 @@ def recommend():
     if recommendations is None:
         matches = df[df['original_title'].str.lower() == movie_name.lower()]
         if not matches.empty:
-            recommendations = get_recommendations(matches.iloc[0]['original_title'], n=5)
-            movie_row = matches.iloc[0]
+            # Pick the one with highest vote_count to handle duplicates
+            best_match = matches.nlargest(1, 'vote_count').iloc[0]
+            movie_row = best_match
+            recommendations = get_recommendations(movie_row['original_title'], n=5)
             exact_movie = {
                 'title': movie_row['original_title'],
                 'rating': round(float(movie_row['vote_average']), 1) if pd.notna(movie_row['vote_average']) else 'N/A',
@@ -197,10 +203,22 @@ def recommend():
     if recommendations is None:
         matches = df[df['original_title'].str.contains(movie_name, case=False, na=False)]
         if not matches.empty:
-            top_match = matches.iloc[0]
+            # Pick the most popular match
+            top_match = matches.nlargest(1, 'vote_count').iloc[0]
             recommendations = get_recommendations(top_match['original_title'], n=5)
             matched_title = top_match['original_title']
             match_type = 'partial'
+            
+            # Add the matched movie to results
+            exact_movie = {
+                'title': top_match['original_title'],
+                'rating': round(float(top_match['vote_average']), 1) if pd.notna(top_match['vote_average']) else 'N/A',
+                'poster': fetch_poster(top_match['id']),
+                'id': int(top_match['id']),
+                'score': 1.0,
+                'genres': top_match.get('genres', ''),
+                'overview': top_match.get('overview', '')
+            }
         else:
             # fuzzy suggestions using difflib
             titles = df['original_title'].tolist()
@@ -348,14 +366,20 @@ def health():
 @app.route('/api/stats', methods=['GET'])
 def get_stats():
     """Get database statistics"""
+    date_range = {'oldest': '1902', 'newest': '2024'}
+    if 'release_date' in df.columns:
+        oldest = df['release_date'].min()
+        newest = df['release_date'].max()
+        if pd.notna(oldest):
+            date_range['oldest'] = str(oldest)[:4]  # Year only
+        if pd.notna(newest):
+            date_range['newest'] = str(newest)[:4]
+    
     return jsonify({
         'total_movies': len(df),
         'average_rating': round(float(df['vote_average'].mean()), 2),
         'total_genres': len(df['genres'].unique()),
-        'date_range': {
-            'oldest': str(df['release_date'].min()) if 'release_date' in df.columns else None,
-            'newest': str(df['release_date'].max()) if 'release_date' in df.columns else None
-        }
+        'date_range': date_range
     })
 
 @app.route('/api/genres', methods=['GET'])

@@ -2,9 +2,10 @@ services:
   - type: web
     name: movie-recommender
     env: python
-    plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn api:app --workers 2 --timeout 30
+    startCommand: gunicorn -w 2 -b 0.0.0.0:$PORT api:app
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
       - key: TMDB_API_KEY
         value: 973eac1c6ee5c0af02fd6281ff2bb30b

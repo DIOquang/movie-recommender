@@ -1,0 +1,18 @@
+
+MODEL: Content-Based Filtering (TF-IDF + Cosine Similarity)
+
+PERFORMANCE METRICS:
+- Average Precision@5:  1.0000
+- Average Recall@5:     0.0029
+- RMSE:                 0.8281
+- MAE:                  0.8254
+
+BASELINE COMPARISON:
+- Our Model vs Random:  +319.5% improvement
+- Model Precision:      0.7640
+- Baseline Precision:   0.1821
+
+DATASET INFO:
+- Total Items:          4647
+- Feature Dimensions:   22625
+- Average Rating:       6.23/10
