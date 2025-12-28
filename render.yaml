@@ -4,11 +4,7 @@ services:
     env: python
     plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 30
+    startCommand: gunicorn api:app --workers 2 --timeout 30
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.9.16
-      - key: PORT
-        value: 5001
       - key: TMDB_API_KEY
         value: 973eac1c6ee5c0af02fd6281ff2bb30b
