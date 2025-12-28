@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Recommendation System</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fjalla+One&family=Inknut+Antiqua:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="landing">
+            <!-- Navigation Bar -->
+            <nav class="navbar">
+                <div class="logo">
+                    <i class="fa-solid fa-film"></i>
+                    <span class="logo-text">CineMatch</span>
+                </div>
+                <div class="navigation">
+                    <a href="#home">Home</a>
+                    <a href="#search">Search</a>
+                    <a href="#history-recos">My Picks</a>
+                    <a href="#trending">Trending</a>
+                </div>
+                <div class="menu-icon">
+                    <div class="line line-1"></div>
+                    <div class="line line-2"></div>
+                </div>
+            </nav>
+
+            <!-- Movie Slideshow -->
+            <div class="slides" id="home">
+                <div class="slide slide-1">
+                    <div class="slide-img-wrapper">
+                        <img src="https://image.tmdb.org/t/p/original/o76ZDm8PS9791XiuieNB93UZcRV.jpg" alt="Avatar">
+                    </div>
+                    <div class="banner">
+                        <h1 class="bg-heading">Discover</h1>
+                        <h2 class="main-heading">Amazing Movies</h2>
+                        <p class="movie-desc">
+                            Find your next favorite movie with our AI-powered recommendation system.
+                            Personalized suggestions based on your taste and preferences.
+                        </p>
+                        <button type="button" class="slide-btn" onclick="scrollToSearch()">Get Started</button>
+                    </div>
+                </div>
+                <div class="slide slide-2">
+                    <div class="slide-img-wrapper">
+                        <img src="https://image.tmdb.org/t/p/original/628Dep6AxEtDxjZoGP78TsOxYbK.jpg" alt="Inception">
+                    </div>
+                    <div class="banner">
+                        <h1 class="bg-heading">Explore</h1>
+                        <h2 class="main-heading">Trending Now</h2>
+                        <p class="movie-desc">
+                            Explore the latest blockbusters and hidden gems. 
+                            Discover movies similar to your all-time favorites.
+                        </p>
+                        <button type="button" class="slide-btn" onclick="scrollToSearch()">Browse Movies</button>
+                    </div>
+                </div>
+                <div class="slide slide-3">
+                    <div class="slide-img-wrapper">
+                        <img src="https://image.tmdb.org/t/p/original/qJ2tW6WMUDux911r6m7haRef0WH.jpg" alt="The Dark Knight">
+                    </div>
+                    <div class="banner">
+                        <h1 class="bg-heading">Experience</h1>
+                        <h2 class="main-heading">Top Rated Films</h2>
+                        <p class="movie-desc">
+                            Experience cinema like never before. Get personalized recommendations 
+                            powered by advanced machine learning algorithms.
+                        </p>
+                        <button type="button" class="slide-btn" onclick="scrollToSearch()">Find Movies</button>
+                    </div>
+                </div>
+                <div class="slide slide-4">
+                    <div class="slide-img-wrapper">
+                        <img src="https://image.tmdb.org/t/p/original/s16H6tpK2utvwDtzZ8Qy4qm5Emw.jpg" alt="Interstellar">
+                    </div>
+                    <div class="banner">
+                        <h1 class="bg-heading">Watch</h1>
+                        <h2 class="main-heading">Your Perfect Match</h2>
+                        <p class="movie-desc">
+                            Let AI help you discover your next movie night pick. 
+                            Smart recommendations based on 5000+ movies in our database.
+                        </p>
+                        <button type="button" class="slide-btn" onclick="scrollToSearch()">Discover Now</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Section -->
+            <div class="search-section" id="search">
+                <div class="search-container">
+                    <h2 class="search-title">Find Similar Movies</h2>
+                    <div class="search-box">
+                        <input type="text" id="movie-input" placeholder="Type a movie title or genre name (e.g., Avatar, Action)..." list="movie-list">
+                        <datalist id="movie-list"></datalist>
+                        <select id="genre-filter">
+                            <option value="">All Genres</option>
+                        </select>
+                        <button class="search-btn" onclick="getRecommendations()">
+                            <i class="fa-solid fa-search"></i> Get Recommendations
+                        </button>
+                    </div>
+                    <div id="recent-keys" class="recent-keys"></div>
+                    <div id="loading" class="loading">
+                        <i class="fa-solid fa-spinner fa-spin"></i> Finding similar movies...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations Results -->
+            <div class="recommendations-section" id="recommendations">
+                <h2 class="section-title">Recommended Movies</h2>
+                <div class="rec-summary" id="rec-summary"></div>
+                <div class="movies-grid" id="movies-grid"></div>
+            </div>
+
+            <!-- History Based Recommendations -->
+            <div class="recommendations-section" id="history-recos">
+                <h2 class="section-title">From Your History</h2>
+                <p class="section-subtitle">Personalized suggestions based on your recent searches</p>
+                <div class="movies-grid" id="history-grid"></div>
+                <div class="empty-state" id="history-empty">No search history yet. Start searching to see personalized recommendations!</div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <i class="fa-solid fa-xmark"></i>
+                <div class="sidebar-nav">
+                    <button type="button" class="sidebar-btn">Menu</button>
+                    <div class="sidebar-nav-items">
+                        <a href="#home">Home</a>
+                        <a href="#search">Search</a>
+                        <a href="#history-recos">My Picks</a>
+                        <a href="#trending">Trending</a>
+                    </div>
+                </div>
+                
+                <!-- History Section -->
+                <div class="history-section">
+                    <h3>Search History</h3>
+                    <div id="history-list">
+                        <p class="no-history">No searches yet</p>
+                    </div>
+                    <button class="clear-history-btn" onclick="clearHistory()">
+                        <i class="fa-solid fa-trash"></i> Clear History
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Section -->
+            <div class="stats-section" id="trending">
+                <h2 class="section-title">Trending & Insights</h2>
+                <div class="stat-row">
+                    <div class="stat-card" id="stat-movies">
+                        <i class="fa-solid fa-film"></i>
+                        <h3 class="stat-value">–</h3>
+                        <p>Total Movies</p>
+                    </div>
+                    <div class="stat-card" id="stat-rating">
+                        <i class="fa-solid fa-star"></i>
+                        <h3 class="stat-value">–</h3>
+                        <p>Avg Rating</p>
+                    </div>
+                    <div class="stat-card" id="stat-genres">
+                        <i class="fa-solid fa-shapes"></i>
+                        <h3 class="stat-value">–</h3>
+                        <p>Genres</p>
+                    </div>
+                    <div class="stat-card" id="stat-range">
+                        <i class="fa-solid fa-calendar"></i>
+                        <h3 class="stat-value">–</h3>
+                        <p>Release Span</p>
+                    </div>
+                </div>
+
+                <div class="trending-layout">
+                    <div class="trending-block">
+                        <div class="trending-header">
+                            <h3>Top Rated Right Now</h3>
+                            <span class="pill">Auto-updated</span>
+                        </div>
+                        <div class="movies-grid" id="trending-grid"></div>
+                    </div>
+                </div>
+
+                <div class="trending-layout">
+                    <div class="trending-block charts">
+                        <div class="chart-card">
+                            <h4>Top Ratings</h4>
+                            <canvas id="chart-top"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h4>Rating Trend</h4>
+                            <canvas id="chart-line"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="trending-layout">
+                    <div class="trending-block charts">
+                        <div class="chart-card">
+                            <h4>Rating Distribution</h4>
+                            <canvas id="chart-rating-dist"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h4>Genre Frequency (Top 15)</h4>
+                            <canvas id="chart-genre-freq"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
