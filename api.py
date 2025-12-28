@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, jsonify, request, send_from_directory, render_template_string
+from flask import Flask, jsonify, request, send_from_directory, render_template_string, Response
 from flask_cors import CORS
 import pandas as pd
 import difflib
@@ -41,6 +41,41 @@ cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
 indices = pd.Series(df.index, index=df['original_title']).drop_duplicates()
 
 print("✅ Model ready!")
+
+# Serve WordCloud image; generate on-the-fly if file is missing
+@app.route('/chart_wordcloud.png')
+def serve_wordcloud_png():
+    from pathlib import Path
+    img_path = Path(__file__).parent / 'chart_wordcloud.png'
+    if img_path.exists():
+        try:
+            return send_from_directory(os.path.dirname(__file__), 'chart_wordcloud.png', mimetype='image/png')
+        except Exception:
+            pass
+
+    # Fallback: generate dynamically
+    try:
+        from io import BytesIO
+        try:
+            from wordcloud import WordCloud
+        except Exception:
+            # wordcloud not available; return 404 to avoid blocking
+            return '', 404
+
+        # Use movie titles and keywords for the cloud
+        titles = ' '.join(df['original_title'].astype(str).tolist())
+        keywords_col = df.get('keywords', '')
+        if isinstance(keywords_col, pd.Series):
+            titles += ' ' + ' '.join(keywords_col.astype(str).tolist())
+
+        wc = WordCloud(width=1600, height=800, background_color='black', colormap='plasma')
+        wc_img = wc.generate(titles).to_image()
+        buf = BytesIO()
+        wc_img.save(buf, format='PNG')
+        buf.seek(0)
+        return Response(buf.getvalue(), mimetype='image/png')
+    except Exception:
+        return '', 404
 
 def fetch_poster(movie_id):
     """Fetch movie poster from TMDB API with basic caching"""
