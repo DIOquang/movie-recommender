@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory, render_template_string
 from flask_cors import CORS
 import pandas as pd
 import difflib
@@ -94,15 +94,39 @@ def get_recommendations(title, n=5):
 
 @app.route('/')
 def home():
-    return jsonify({
-        'message': 'Movie Recommendation API',
-        'version': '1.0',
-        'endpoints': {
-            '/api/movies': 'GET - Get list of all movies',
-            '/api/recommend': 'POST - Get recommendations for a movie',
-            '/api/movie/<id>': 'GET - Get movie details by ID'
-        }
-    })
+    """Serve the frontend HTML"""
+    try:
+        with open('index.html', 'r', encoding='utf-8') as f:
+            return f.read()
+    except FileNotFoundError:
+        return jsonify({
+            'message': 'Movie Recommendation API',
+            'version': '1.0',
+            'note': 'Frontend not found. API is working.',
+            'endpoints': {
+                '/api/movies': 'GET - Get list of all movies',
+                '/api/recommend': 'POST - Get recommendations for a movie',
+                '/api/movie/<id>': 'GET - Get movie details by ID'
+            }
+        })
+
+@app.route('/style.css')
+def serve_css():
+    """Serve CSS file"""
+    try:
+        with open('style.css', 'r', encoding='utf-8') as f:
+            return f.read(), 200, {'Content-Type': 'text/css'}
+    except FileNotFoundError:
+        return '', 404
+
+@app.route('/script.js')
+def serve_js():
+    """Serve JavaScript file"""
+    try:
+        with open('script.js', 'r', encoding='utf-8') as f:
+            return f.read(), 200, {'Content-Type': 'application/javascript'}
+    except FileNotFoundError:
+        return '', 404
 
 @app.route('/api/movies', methods=['GET'])
 def get_movies():
